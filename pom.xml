@@ -13,13 +13,14 @@
         <maven.compiler.target>23</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.google.genai</groupId>
             <artifactId>google-genai</artifactId>
             <version>1.17.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/androidx.media3/media3-exoplayer -->
+
     </dependencies>
 
 </project>
