@@ -5,14 +5,15 @@ import java.util.List;
 
 public class basic {
     public static void main(String[] args) throws InterruptedException {
+
         Client client = Client.builder()
-                .apiKey("AIzaSyCV3nyovUpBoa9LY4be-MS42AglxVgyMMM")
+                .apiKey((new api()).getApi_key())
                 .build();
 
 
 
         GenerateContentResponse response =
-                client.models.generateContent("gemini-2.5-flash", "translate \"hello\" to south african sign language and create a prompt to create a video of a person that signs \"hello\" in south african sign language", null);
+                client.models.generateContent("gemini-2.5-flash", "translate \"hello\" to south african sign language, using this translation create a prompt to create a video of a person that signs \"hello\" in south african sign language", null);
 
         System.out.println(response.text());
 
