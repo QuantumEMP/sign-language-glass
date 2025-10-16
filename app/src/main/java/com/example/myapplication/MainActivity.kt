@@ -1,12 +1,12 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.ContextParams
 import android.content.Intent
 import android.os.Bundle
+import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -47,25 +47,54 @@ import com.example.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
 
+    private lateinit var recorder: AudioRecorder
+
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val con = ContextParams.Builder().build()
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        recorder = AudioRecorder(this)
+        recorder.initialize(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {
+                Log.d("Speech", "Ready for speech")
+            }
 
-        // on below line we are passing language model
-        // and model free form in our intent
-        intent.putExtra(
-            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-        )
+            override fun onBeginningOfSpeech() {
+                Log.d("Speech", "Speech started")
+            }
 
-        // on below line we are specifying a prompt
-        // message as speak to text on below line.
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to text")
-        AudioRecorder().startRecording(createContext(con), intent)
+            override fun onRmsChanged(rmsdB: Float) {
+                // Optional: volume level
+            }
 
+            override fun onBufferReceived(buffer: ByteArray?) {}
+
+            override fun onEndOfSpeech() {
+                Log.d("Speech", "Speech ended")
+            }
+
+            override fun onError(error: Int) {
+                Log.e("Speech", "Error: $error")
+            }
+
+            override fun onResults(results: Bundle?) {
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                Log.d("Speech", "Results: $matches")
+            }
+
+            override fun onPartialResults(partialResults: Bundle?) {}
+
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        })
+
+        // Prepare the intent
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, packageName)
+        }
+
+        // Start listening
+        recorder.startListening(intent)
         setContent {
             MyApplicationTheme {
                 val spatialConfiguration = LocalSpatialConfiguration.current
